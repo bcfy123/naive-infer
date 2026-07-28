@@ -1,0 +1,9 @@
+build/
+log/
+*.o
+*.a
+*.so
+*.out
+.DS_Store
+.idea/
+cmake-build-*/
