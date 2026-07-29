@@ -2,7 +2,7 @@
 // Created by wjldw on 2026/7/29.
 //
 
-#include "ops.h"
+#include "ops.hpp"
 #include <armadillo>
 #include <gtest/gtest.h>
 #include <vector>

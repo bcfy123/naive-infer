@@ -2,7 +2,7 @@
 // Created by wjldw on 2026/7/29.
 //
 
-#include "ops.h"
+#include "ops.hpp"
 
 void Axby(const arma::fmat &x, const arma::fmat &w, const arma::fmat &b,
           arma::fmat &y) {
