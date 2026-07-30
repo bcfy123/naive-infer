@@ -158,17 +158,52 @@ float& Tensor<float>::at(uint32_t channel, uint32_t row, uint32_t col) {
   return this->data_.at(row, col, channel);
 }
 
-void Tensor<float>::Padding(const std::vector<uint32_t>& pads,
-                            float padding_value) {
+  void Tensor<float>::Padding(const std::vector<uint32_t>& pads,
+                              float padding_value) {
   CHECK(!this->data_.empty());
   CHECK_EQ(pads.size(), 4);
-  // 四周填充的维度
+
+
   uint32_t pad_rows1 = pads.at(0);  // up
   uint32_t pad_rows2 = pads.at(1);  // bottom
   uint32_t pad_cols1 = pads.at(2);  // left
   uint32_t pad_cols2 = pads.at(3);  // right
 
-  // 请补充代码
+  uint32_t old_rows = this->rows();
+  uint32_t old_cols = this->cols();
+  uint32_t channels = this->channels();
+
+  uint32_t new_rows = old_rows + pad_rows1 + pad_rows2;
+  uint32_t new_cols = old_cols + pad_cols1 + pad_cols2;
+
+  arma::fcube new_data(
+      new_rows,
+      new_cols,
+      channels
+  );
+
+  // 填充padding值
+  new_data.fill(padding_value);
+
+  // 拷贝原始数据
+  for(uint32_t c = 0; c < channels; ++c)
+  {
+    for(uint32_t r = 0; r < old_rows; ++r)
+    {
+      for(uint32_t col = 0; col < old_cols; ++col)
+      {
+        new_data(
+            r + pad_rows1,
+            col + pad_cols1,
+            c
+        )
+        =
+        this->data_.at(r,col,c);
+      }
+    }
+  }
+
+  this->data_ = new_data;
 }
 
 void Tensor<float>::Fill(float value) {
@@ -207,6 +242,32 @@ void Tensor<float>::Show() {
 void Tensor<float>::Flatten(bool row_major) {
   CHECK(!this->data_.empty());
   // 请补充代码
+  const uint32_t size = this->data_.size();
+  arma::fcube flatten_data(1, size, 1);
+  if(row_major)
+  {
+    uint32_t offset = 0;
+    for(uint32_t c=0;c<channels();c++)
+    {
+      for(uint32_t r=0;r<rows();r++)
+      {
+        for(uint32_t col=0;col<cols();col++)
+        {
+          flatten_data(0,offset++,0)
+              = this->data_.at(r,col,c);
+        }
+      }
+    }
+  }
+  else
+  {
+    std::copy(
+        this->data_.memptr(),
+        this->data_.memptr()+size,
+        flatten_data.memptr());
+  }
+  this->data_=flatten_data;
+  this->raw_shapes_={size};
 }
 
 void Tensor<float>::Rand() {
