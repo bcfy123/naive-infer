@@ -23,6 +23,7 @@ add_executable(unit_test
         tensor.hpp
         tensor.cpp
         test2.cpp
+        test_size.cpp
 )
 
 target_link_libraries(unit_test ${link_lib} ${link_math_lib})
