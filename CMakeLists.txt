@@ -21,9 +21,10 @@ add_executable(unit_test
         tensor_create_test.cpp
         tensor.hpp
         tensor.cpp
-        test2.cpp
-        test_size.cpp
+        flatten_padding_test.cpp
+        tensor_size_test.cpp
         fill_reshape_test.cpp
+        value_test.cpp
 )
 
 target_link_libraries(unit_test ${link_lib} ${link_math_lib})
