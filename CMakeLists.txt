@@ -25,6 +25,7 @@ add_executable(unit_test
         tensor_size_test.cpp
         fill_reshape_test.cpp
         value_test.cpp
+        transform_test.cpp
 )
 
 target_link_libraries(unit_test ${link_lib} ${link_math_lib})
