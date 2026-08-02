@@ -17,13 +17,13 @@ set(link_math_lib  ${ARMADILLO_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 add_executable(unit_test
         axby.cpp
         test1.cpp
-        test1.cpp
         main.cpp
         tensor_create_test.cpp
         tensor.hpp
         tensor.cpp
         test2.cpp
         test_size.cpp
+        fill_reshape_test.cpp
 )
 
 target_link_libraries(unit_test ${link_lib} ${link_math_lib})
