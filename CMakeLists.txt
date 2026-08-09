@@ -14,20 +14,22 @@ set(link_lib glog::glog GTest::gtest pthread)
 set(link_math_lib  ${ARMADILLO_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 
 # 列出所有cpp源码文件
-add_executable(unit_test
+add_executable(naive_infer
         axby.cpp
         test1.cpp
         main.cpp
         tensor_create_test.cpp
-        tensor.hpp
-        tensor.cpp
         flatten_padding_test.cpp
         tensor_size_test.cpp
         fill_reshape_test.cpp
         value_test.cpp
         transform_test.cpp
         test_ir.cpp
+        include/data/tensor.hpp
+        source/tensor.cpp
 )
 
-target_link_libraries(unit_test ${link_lib} ${link_math_lib})
+target_link_libraries(naive_infer ${link_lib} ${link_math_lib})
+target_include_directories(naive_infer PUBLIC ./include)
+
 enable_testing()
