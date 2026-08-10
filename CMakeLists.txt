@@ -27,6 +27,8 @@ add_executable(naive_infer
         test_ir.cpp
         include/data/tensor.hpp
         source/tensor.cpp
+        include/data/tensor_util.hpp
+        source/tensor_util.cpp
 )
 
 target_link_libraries(naive_infer ${link_lib} ${link_math_lib})

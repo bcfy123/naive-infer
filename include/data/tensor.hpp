@@ -6,6 +6,7 @@
 #define NAIVEINFER_DATA_TENSOR_HPP
 #include <armadillo>
 #include <vector>
+#include <memory>
 
 namespace naive_infer {
 template<typename T = float>
@@ -98,6 +99,10 @@ class Tensor<float> {
     std::vector<uint32_t> raw_shapes_;  // 张量数据的实际尺寸大小
     arma::fcube data_;                  // 张量数据
 };
+
+using ftensor = Tensor<float>;
+using sftensor = std::shared_ptr<Tensor<float>>;
+
 }
 
 #endif //NAIVEINFER_DATA_TENSOR_HPP
