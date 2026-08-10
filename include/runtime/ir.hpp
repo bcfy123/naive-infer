@@ -1,82 +1,74 @@
-// Tencent is pleased to support the open source community by making ncnn available.
 //
-// Copyright (C) 2021 THL A29 Limited, a Tencent company. All rights reserved.
+// Created by twqb on 8/11/26.
 //
-// Licensed under the BSD 3-Clause License (the "License"); you may not use this file except
-// in compliance with the License. You may obtain a copy of the License at
-//
-// https://opensource.org/licenses/BSD-3-Clause
-//
-// Unless required by applicable law or agreed to in writing, software distributed
-// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the
-// specific language governing permissions and limitations under the License.
 
-#ifndef PNNX_IR_H
-#define PNNX_IR_H
-
-#include <initializer_list>
-#include <map>
-#include <set>
-#include <string>
+#ifndef NAIVEINFER_IR_HPP
+#define NAIVEINFER_IR_HPP
 #include <vector>
+#include <string>
+#include <map>
 
 #if BUILD_PNNX
-// 前向声明的作用，告诉编译器有这么个变量类型
 namespace torch {
-namespace jit {
-struct Value;
-struct Node;
-} // namespace jit
+  namespace jit {
+    struct Value;
+    struct Node;
+  } // namespace jit
 } // namespace torch
 namespace at {
-class Tensor;
+  class Tensor;
 }
 #endif // BUILD_PNNX
 
 namespace pnnx {
-
-class Parameter
-{
-public:
-    // 构造函数
-    // 代表初始化列表，在构造函数函数体 {} 执行之前，把成员变量 type 赋值成 0
+  class Parameter {
+  public:
     Parameter()
-        : type(0)
+      :type(0)
     {
     }
+
     Parameter(bool _b)
-        : type(1), b(_b)
+      :type(1), b(_b)
     {
     }
+
     Parameter(int _i)
         : type(2), i(_i)
     {
     }
+
     Parameter(long _l)
         : type(2), i(_l)
     {
     }
+
     Parameter(long long _l)
         : type(2), i(_l)
     {
     }
+
     Parameter(float _f)
         : type(3), f(_f)
     {
     }
+
     Parameter(double _d)
         : type(3), f(_d)
     {
     }
+
     Parameter(const char* _s)
         : type(4), s(_s)
     {
     }
+
     Parameter(const std::string& _s)
         : type(4), s(_s)
     {
     }
+
+    // initializer_list<T>轻量模板容器，只读，只能遍历
     Parameter(const std::initializer_list<int>& _ai)
         : type(5), ai(_ai)
     {
@@ -84,8 +76,8 @@ public:
     Parameter(const std::initializer_list<int64_t>& _ai)
         : type(5)
     {
-        for (const auto& x : _ai)
-            ai.push_back((int)x);
+      for (const auto& x : _ai)
+        ai.push_back((int)x);
     }
     Parameter(const std::vector<int>& _ai)
         : type(5), ai(_ai)
@@ -98,8 +90,8 @@ public:
     Parameter(const std::initializer_list<double>& _af)
         : type(6)
     {
-        for (const auto& x : _af)
-            af.push_back((float)x);
+      for (const auto& x : _af)
+        af.push_back((float)x);
     }
     Parameter(const std::vector<float>& _af)
         : type(6), af(_af)
@@ -108,8 +100,8 @@ public:
     Parameter(const std::initializer_list<const char*>& _as)
         : type(7)
     {
-        for (const auto& x : _as)
-            as.push_back(std::string(x));
+      for (const auto& x : _as)
+        as.push_back(std::string(x));
     }
     Parameter(const std::initializer_list<std::string>& _as)
         : type(7), as(_as)
@@ -120,43 +112,44 @@ public:
     {
     }
 
-// #if BUILD_PNNX 是预处理阶段，根据宏来判断传不传给编译器编译
 #if BUILD_PNNX
-    // LibTorch（PyTorch C++ 库）里的 类型
     Parameter(const torch::jit::Node* value_node);
     Parameter(const torch::jit::Value* value);
 #endif // BUILD_PNNX
 
     static Parameter parse_from_string(const std::string& value);
 
-    // 0=null 1=b 2=i 3=f 4=s 5=ai 6=af 7=as 8=others
+    // 0 = null    空参数（无数据）
+    // 1 = b       bool 布尔值
+    // 2 = i       整数（int/long/long long 统一存进 int 成员）
+    // 3 = f       浮点数（float/double 统一存进 float 成员）
+    // 4 = s       单个字符串 std::string
+    // 5 = ai      int 数组 vector<int>
+    // 6 = af      float 数组 vector<float>
+    // 7 = as      字符串数组 vector<std::string>
     int type;
 
-    // value
     bool b;
     int i;
     float f;
     std::vector<int> ai;
     std::vector<float> af;
 
-    // keep std::string typed member the last for cross cxxabi compatibility
     std::string s;
     std::vector<std::string> as;
-};
+  };
 
-// 重载 == ，比较 Parameter 是否相等（这里的operator是c++关键字）
-bool operator==(const Parameter& lhs, const Parameter& rhs);
+  bool operator==(const Parameter& lhs, const Parameter& rhs);
 
-class Attribute
-{
-public:
+  class Attribute
+  {
+  public:
     Attribute()
         : type(0)
     {
     }
 
 #if BUILD_PNNX
-    // at::Tensor 是 LibTorch 的张量类型
     Attribute(const at::Tensor& t);
 #endif // BUILD_PNNX
 
@@ -167,62 +160,52 @@ public:
     std::vector<int> shape;
 
     std::vector<char> data;
-};
+  };
 
-bool operator==(const Attribute& lhs, const Attribute& rhs);
+  bool operator==(const Attribute& lhs, const Attribute& rhs);
 
-// concat two attributes along the first axis
-Attribute operator+(const Attribute& a, const Attribute& b);
+  // concat two attributes along the first axis
+  Attribute operator+(const Attribute& a, const Attribute& b);
 
-class Operator;
-// 张量类，operator之间传递的
-class Operand
-{
-public:
+  class Operator;
+  // 数据流
+  class Operand
+  {
+  public:
     void remove_consumer(const Operator* c);
 
-    // 指向 产生该operand的 operator
     Operator* producer;
-    // 指向 operand传给的 operator s
     std::vector<Operator*> consumers;
 
-    // 张量里的数据类型
     // 0=null 1=f32 2=f64 3=f16 4=i32 5=i64 6=i16 7=i8 8=u8 9=bool 10=cp64 11=cp128 12=cp32
     int type;
-    // 张量形状
     std::vector<int> shape;
 
-    // operator名字，调试等阶段易读
     // keep std::string typed member the last for cross cxxabi compatibility
     std::string name;
 
-    // 存一些operand的额外信息
     std::map<std::string, Parameter> params;
 
-};
+  };
 
-class Operator
-{
-public:
-    // 输入/输出 operand列表
+  class Operator
+  {
+  public:
     std::vector<Operand*> inputs;
     std::vector<Operand*> outputs;
 
-    // operator 类型和名字
     // keep std::string typed member the last for cross cxxabi compatibility
     std::string type;
     std::string name;
 
-    // TODO 输入operand的语义（？）
     std::vector<std::string> inputnames;
-    // TODO operator的权重、偏置参数等（？）
     std::map<std::string, Parameter> params;
     std::map<std::string, Attribute> attrs;
-};
+  };
 
-class Graph
-{
-public:
+  class Graph
+  {
+  public:
     Graph();
     ~Graph();
 
@@ -248,15 +231,14 @@ public:
     Operand* get_operand(const std::string& name);
     const Operand* get_operand(const std::string& name) const;
 
-    // TODO vector 顺序就是operator执行顺序（？）
     std::vector<Operator*> ops;
     std::vector<Operand*> operands;
 
-private:
+  private:
     Graph(const Graph& rhs);
     Graph& operator=(const Graph& rhs);
-};
+  };
 
-} // namespace pnnx
+}
 
-#endif // PNNX_IR_H
+#endif //NAIVEINFER_IR_HPP
