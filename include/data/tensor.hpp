@@ -117,6 +117,71 @@ namespace naive_infer {
      */
     float &index(uint32_t offset);
 
+    /**
+     * get data of the given channel from the tensor
+     * @param channel
+     * @return
+     */
+    arma::fmat &slice(uint32_t channel);
+
+    /**
+     * get data of the given channel from the tensor
+     * @param channel
+     * @return
+     */
+    const arma::fmat &slice(uint32_t channel) const;
+
+    /**
+     *
+     * @param channel
+     * @param row
+     * @param col
+     * @return element at the given 3D coordinate
+     */
+    float at(uint32_t channel, uint32_t row, uint32_t col) const;
+
+    /**
+     *
+     * @param channel
+     * @param row
+     * @param col
+     * @return element at the given 3D coordinate
+     */
+    float &at(uint32_t channel, uint32_t row, uint32_t col);
+
+    /**
+     * get raw pointer to the underlying tensor data.
+     * @return pointer to the start of the data buffer
+     */
+    float *raw_ptr();
+
+    /**
+     * get raw pointer at the specified offset of the underlying tensor data.
+     * @param offset element offset from the data start
+     * @return pointer to the data position at the given offset
+     */
+    float *raw_ptr(uint32_t offset);
+
+    /**
+     * get raw pointer of the matrix at the specified index.
+     * @param index index of the target matrix
+     * @return raw pointer to the selected matrix data
+     */
+    float *matrix_raw_ptr(uint32_t index);
+
+    /**
+     * Initialize tensor data with the value.
+     * @param value used to fill the tensor
+     */
+    void Fill(float value);
+
+    /**
+     * Initialize tensor data from the given values.
+     * @param values data used to initialize the tensor
+     * @param row_major If true, interpret input values in row-major order
+     */
+    void Fill(const std::vector<float> &values, bool row_major = true);
+
   private:
     std::vector<uint32_t> raw_shapes_;
 

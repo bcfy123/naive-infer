@@ -110,6 +110,10 @@ namespace naive_infer {
     return this->data_;
   }
 
+  arma::fcube & Tensor<float>::data() {
+    return this->data_;
+  }
+
   void Tensor<float>::set_data(const arma::fcube &data) {
     CHECK(data.n_rows == this->data_.n_rows)
         << data.n_rows << " != " << this->data_.n_rows;
@@ -134,7 +138,73 @@ namespace naive_infer {
     return this->data_.at(offset);
   }
 
-  arma::fcube & Tensor<float>::data() {
-    return this->data_;
+  arma::fmat & Tensor<float>::slice(uint32_t channel) {
+    CHECK_LT(channel, this->channels());
+    return this->data_.slice(channel);
+  }
+
+  const arma::fmat & Tensor<float>::slice(uint32_t channel) const {
+    CHECK_LT(channel, this->channels());
+    return this->data_.slice(channel);
+  }
+
+  float Tensor<float>::at(uint32_t channel, uint32_t row, uint32_t col) const {
+    CHECK_LT(channel, this->channels());
+    CHECK_LT(row, this->rows());
+    CHECK_LT(col, this->cols());
+    return this->data_.at(row, col, channel);
+  }
+
+  float & Tensor<float>::at(uint32_t channel, uint32_t row, uint32_t col) {
+    CHECK_LT(row, this->rows());
+    CHECK_LT(col, this->cols());
+    CHECK_LT(channel, this->channels());
+    return this->data_.at(row, col, channel);
+  }
+
+  float * Tensor<float>::raw_ptr() {
+    CHECK(!this->data_.empty());
+    return this->data_.memptr();
+  }
+
+  float * Tensor<float>::raw_ptr(uint32_t offset) {
+    const uint32_t size = this->size();
+    CHECK(!this->data_.empty());
+    CHECK_LT(offset, size);
+    return this->data_.memptr() + offset;
+  }
+
+  float * Tensor<float>::matrix_raw_ptr(uint32_t index) {
+    CHECK_LT(index, this->channels());
+    uint32_t offset = index * this->rows() * this->cols();
+    CHECK_LE(offset, this->size());
+    float* mem_ptr = this->raw_ptr() + offset;
+    return mem_ptr;
+  }
+
+  void Tensor<float>::Fill(float value) {
+    CHECK(!this->data_.empty());
+    this->data_.fill(value);
+  }
+
+  void Tensor<float>::Fill(const std::vector<float>& values, bool row_major) {
+    CHECK(!this->data_.empty());
+    const uint32_t total_elems = this->data_.size();
+    CHECK_EQ(values.size(), total_elems);
+    if (row_major) {
+      const uint32_t rows = this->rows();
+      const uint32_t cols = this->cols();
+      const uint32_t planes = rows * cols;
+      const uint32_t channels = this->data_.n_slices;
+
+      for (uint32_t i = 0; i < channels; ++i) {
+        auto& channel_data = this->data_.slice(i);
+        const arma::fmat& channel_data_t =
+            arma::fmat(values.data() + i * planes, this->cols(), this->rows());
+        channel_data = channel_data_t.t();
+      }
+    } else {
+      std::copy(values.begin(), values.end(), this->data_.memptr());
+    }
   }
 }
