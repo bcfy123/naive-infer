@@ -70,3 +70,13 @@ TEST(test_tensor, padding_tensor) {
   t1.Padding({1,2,3,4}, 1);
   LOG(INFO)<<"t1 data; " << t1.data();
 }
+
+TEST(test_tensor, subtract_tensor) {
+  sftensor t1 = std::make_shared<ftensor>(2,2,3);
+  std::vector<float> values(t1->size());
+  std::iota(values.begin(), values.end(), 1.0f);
+  t1->Fill(values);
+  LOG(INFO)<<"t1 data; " << t1->data();
+  t1-=0.5;
+  LOG(INFO)<<"t1 data; " << t1->data();
+}
