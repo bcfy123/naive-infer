@@ -37,3 +37,36 @@ TEST(test_tensor, tensor_data) {
   auto* matrix_raw_ptr = t1.matrix_raw_ptr(0);
   LOG(INFO) << "t1 index 0; " << *(matrix_raw_ptr);
 }
+
+TEST(test_tensor, flatten_tensor) {
+  Tensor<float> t1(2, 2,3);
+  std::vector<float> values(t1.size());
+  std::iota(values.begin(), values.end(), 1.0f);
+  t1.Fill(values);
+  Tensor<float> t2 = t1;
+  LOG(INFO)<<"t1 data; " << t1.data();
+  t1.Flatten();
+  LOG(INFO)<<"flatten t1 data; " << t1.data();
+  t2.Flatten(true);
+  LOG(INFO)<<"flatten t2 data; " << t2.data();
+}
+
+TEST(test_tensor, reshape_tensor) {
+  Tensor<float> t1(2, 2,3);
+  std::vector<float> values(t1.size());
+  std::iota(values.begin(), values.end(), 1.0f);
+  t1.Fill(values);
+  LOG(INFO)<<"t1 data; " << t1.data();
+  t1.Reshape({3,2,2}, true);
+  LOG(INFO)<<"t1 data; " << t1.data();
+}
+
+TEST(test_tensor, padding_tensor) {
+  Tensor<float> t1(2,2,3);
+  std::vector<float> values(t1.size());
+  std::iota(values.begin(), values.end(), 1.0f);
+  t1.Fill(values);
+  LOG(INFO)<<"t1 data; " << t1.data();
+  t1.Padding({1,2,3,4}, 1);
+  LOG(INFO)<<"t1 data; " << t1.data();
+}

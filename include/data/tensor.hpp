@@ -5,6 +5,7 @@
 #ifndef NAIVEINFER_TENSOR_HPP
 #define NAIVEINFER_TENSOR_HPP
 #include <armadillo>
+#include <memory>
 
 namespace naive_infer {
   template <typename T = float>
@@ -182,11 +183,62 @@ namespace naive_infer {
      */
     void Fill(const std::vector<float> &values, bool row_major = true);
 
+    /**
+     * pad the tensor
+     * @param pads padding size for the tensor
+     * @param padding_value used for the tensor
+     */
+    void Padding(const std::vector<uint32_t> &pads, float padding_value);
+
+    /**
+     * get all underlying data of the tensor
+     * @param row_major If true, output data in row-major order
+     * @return Flattened data of the tensor
+     */
+    std::vector<float> values(bool row_major=true);
+
+    /**
+     * reshape the tensor
+     * @param shapes target shape dimensions
+     * @param row_major If true, interpret data in row-major order when reshaping
+     */
+    void Reshape(const std::vector<uint32_t> &shapes, bool row_major=false);
+
+    /**
+     * flatten the tensor
+     * @param row_major
+     */
+    void Flatten(bool row_major=false);
+
+    /**
+     * filter elements in the tensor
+     * @param filter
+     */
+    void Transform(const std::function<float(float)> &filter);
+
+    /**
+     * initialize tensor with constant value 1
+     */
+    void Ones();
+
+    /**
+     * initialize the tensor with random values
+     */
+    void Rand();
+
+    /**
+     * print the tensor
+     */
+    void Show();
+
   private:
     std::vector<uint32_t> raw_shapes_;
 
     arma::fcube data_;
   };
+
+  using ftensor = Tensor<float>;
+  using sftensor = std::shared_ptr<Tensor<float>>;
 }
 
 #endif //NAIVEINFER_TENSOR_HPP

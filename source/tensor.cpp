@@ -6,7 +6,7 @@
 
 namespace naive_infer {
   Tensor<float>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
-    data_ = arma::fcube(channels, rows, cols);
+    data_ = arma::fcube(rows, cols, channels);
     if (channels==1&&rows==1) {
       raw_shapes_ = std::vector<uint32_t>{cols};
     }else if (channels==1) {
@@ -22,7 +22,7 @@ namespace naive_infer {
   }
 
   Tensor<float>::Tensor(uint32_t size) {
-    data_ = arma::fcube(size, 1, 1);
+    data_ = arma::fcube(1, size, 1);
     this->raw_shapes_ = std::vector<uint32_t>{size};
   }
 
@@ -205,6 +205,116 @@ namespace naive_infer {
       }
     } else {
       std::copy(values.begin(), values.end(), this->data_.memptr());
+    }
+  }
+
+  void Tensor<float>::Padding(const std::vector<uint32_t> &pads, float padding_value) {
+    CHECK(!this->data_.empty());
+    CHECK_EQ(pads.size(), 4);
+    uint32_t pad_rows1 = pads.at(0);
+    uint32_t pad_rows2 = pads.at(1);
+    uint32_t pad_cols1 = pads.at(2);
+    uint32_t pad_cols2 = pads.at(3);
+
+    if (pad_rows1 == 0 && pad_rows2 == 0 && pad_cols1 == 0 && pad_cols2 == 0) {
+      return;
+    }
+
+    uint32_t rows = this->rows();
+    uint32_t cols = this->cols();
+    uint32_t channels = this->channels();
+
+    uint32_t new_rows = rows+pad_rows1+pad_rows2;
+    uint32_t new_cols = cols+pad_cols1+pad_cols2;
+
+    arma::fcube new_data(new_rows, new_cols, channels, arma::fill::value(padding_value));
+    new_data.subcube(pad_rows1, pad_cols1, 0,
+      pad_rows1+rows-1, pad_cols1+cols-1, channels-1) = this->data_;
+    this->data_ = std::move(new_data);
+  }
+
+  std::vector<float> Tensor<float>::values(bool row_major) {
+    CHECK_EQ(this->data_.empty(), false);
+    std::vector<float> values(this->data_.size());
+    if (!row_major) {
+      std::copy(this->data_.mem, this->data_.mem+this->data_.size(),
+        values.begin());
+    }else {
+      uint32_t index = 0;
+      for (uint32_t c=0;c<this->data_.n_slices;++c) {
+        const arma::fmat &channel = this->data_.slice(c).t();
+        std::copy(channel.begin(), channel.end(), values.begin()+index);
+        index+=channel.size();
+      }
+      CHECK_EQ(index, values.size());
+    }
+    return values;
+  }
+
+  void Tensor<float>::Reshape(const std::vector<uint32_t> &shapes, bool row_major) {
+    CHECK(!this->data_.empty());
+    CHECK(!shapes.empty());
+    const uint32_t origin_size = this->size();
+    const uint32_t current_size = std::accumulate(shapes.begin(),
+      shapes.end(), 1, std::multiplies());
+    CHECK(shapes.size() <= 3);
+    CHECK(current_size == origin_size);
+    std::vector<float> values;
+    if (row_major) {
+      values = this->values(true);
+    }
+    if (shapes.size() == 3) {
+      this->data_.reshape(shapes.at(1), shapes.at(2), shapes.at(0));
+      this->raw_shapes_ = {shapes.at(0), shapes.at(1), shapes.at(2)};
+    } else if (shapes.size() == 2) {
+      this->data_.reshape(shapes.at(0), shapes.at(1), 1);
+      this->raw_shapes_ = {shapes.at(0), shapes.at(1)};
+    } else {
+      this->data_.reshape(1, shapes.at(0), 1);
+      this->raw_shapes_ = {shapes.at(0)};
+    }
+
+    if (row_major) {
+      this->Fill(values, true);
+    }
+  }
+
+  void Tensor<float>::Flatten(bool row_major) {
+    CHECK(!this->data_.empty());
+    // 获取总元素数
+    uint32_t total_elems = this->data_.n_elem;
+    if (row_major) {
+      // 行主序展平：先提取行主序数据，再reshape
+      std::vector<float> flat_values = this->values(true);
+      this->data_.reshape(1, total_elems, 1);
+      this->Fill(flat_values, true);
+    } else {
+      // 列主序展平 (Armadillo默认，更快)
+      this->data_.reshape(1, total_elems, 1);
+    }
+    // 更新形状信息
+    this->raw_shapes_ = {total_elems};
+  }
+
+  void Tensor<float>::Transform(const std::function<float(float)> &filter) {
+    CHECK(!this->data_.empty());
+    this->data_.transform(filter);
+  }
+
+  void Tensor<float>::Ones() {
+    CHECK(!this->data_.empty());
+    this->Fill(1.f);
+  }
+
+  void Tensor<float>::Rand() {
+    CHECK(!this->data_.empty());
+    this->data_.randn();
+  }
+
+  void Tensor<float>::Show() {
+    for (uint32_t i=0;i<this->channels();++i) {
+      LOG(INFO)<<"channel:"<<i;
+      LOG(INFO)<<"\n"<<this->data_.slice(i);
     }
   }
 }
