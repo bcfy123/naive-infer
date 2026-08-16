@@ -317,4 +317,10 @@ namespace naive_infer {
       LOG(INFO)<<"\n"<<this->data_.slice(i);
     }
   }
+
+  sftensor &operator-=(sftensor &tensor, float value) {
+    CHECK(tensor != nullptr);
+    tensor->data() -= value;
+    return tensor;
+  }
 }

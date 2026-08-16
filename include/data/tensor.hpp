@@ -239,6 +239,8 @@ namespace naive_infer {
 
   using ftensor = Tensor<float>;
   using sftensor = std::shared_ptr<Tensor<float>>;
+
+  sftensor& operator-=(sftensor& tensor, float value);
 }
 
 #endif //NAIVEINFER_TENSOR_HPP
