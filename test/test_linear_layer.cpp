@@ -49,16 +49,6 @@ TEST(test_linear_layer, ForwardNoBias) {
   ASSERT_EQ(outputs.size(), 1);
   auto& out_tensor = outputs.at(0);
   ASSERT_NE(out_tensor, nullptr);
-
-  // 6. 手动计算真值 Y = X @ W.T
-  // W.T = [[1,3,5],
-  //        [2,4,6]]
-  // X[0] = [10,20] → [10*1+20*2, 10*3+20*4, 10*5+20*6] = [50,110,170]
-  // X[1] = [30,40] → [30*1+40*2, 30*3+40*4, 30*5+40*6] = [110,250,390]
-  std::vector<float> expect = {
-      50.f, 110.f, 170.f,
-      110.f,250.f,390.f
-  };
   LOG(INFO) << "output tensor data: " << out_tensor->data();
 }
 
