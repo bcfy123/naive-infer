@@ -1,5 +1,5 @@
 //
-// Created by fss on 22-11-12.
+// Created by twqb.
 //
 
 #ifndef NAIVE_INFER_INCLUDE_COMMON_HPP_

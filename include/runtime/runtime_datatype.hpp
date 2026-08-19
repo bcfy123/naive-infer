@@ -1,5 +1,5 @@
 //
-// Created by fss on 22-12-23.
+// Created by twqb.
 //
 #ifndef NAIVE_INFER_INCLUDE_RUNTIME_RUNTIME_DATATYPE_HPP_
 #define NAIVE_INFER_INCLUDE_RUNTIME_RUNTIME_DATATYPE_HPP_

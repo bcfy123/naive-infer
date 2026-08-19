@@ -1,19 +1,23 @@
 // Created by twqb.
 
-#ifndef NAIVEINFER_SOURCE_LAYER_BINOCULAR_RELU_HPP_
-#define NAIVEINFER_SOURCE_LAYER_BINOCULAR_RELU_HPP_
+#ifndef NAIVE_INFER_SOURCE_LAYER_DETAILS_CAT_HPP_
+#define NAIVE_INFER_SOURCE_LAYER_DETAILS_CAT_HPP_
 #include "layer/abstract/non_param_layer.hpp"
 namespace naive_infer {
-class ReluLayer : public NonParamLayer {
+class CatLayer : public NonParamLayer {
  public:
-  ReluLayer() : NonParamLayer("Relu") {}
+  explicit CatLayer(int dim);
+
   InferStatus Forward(
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
       std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
   static ParseParameterAttrStatus GetInstance(
       const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer>& relu_layer);
+      std::shared_ptr<Layer>& cat_layer);
+
+ private:
+  int32_t dim_ = 0;
 };
 }  // namespace naive_infer
-#endif  // NAIVEINFER_SOURCE_LAYER_BINOCULAR_RELU_HPP_
+#endif  // NAIVE_INFER_SOURCE_LAYER_DETAILS_CAT_HPP_
