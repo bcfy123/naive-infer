@@ -36,12 +36,12 @@ TEST(TestConvolutionLayer, Conv2dBasicWithBias) {
     conv->InitIm2ColWeight();
 
     // ---------------------- 3.构造输入张量 batch=1, [1, 2, 4,4] ----------------------
-    auto input = TensorCreate(1, 2, 4, 4);
+    auto input = TensorCreate(2, 4, 4);
     // 通道0全部赋值1；通道1全部赋值1
     for(uint32_t c=0;c<2;c++){
         for(uint32_t r=0;r<4;r++){
             for(uint32_t col=0;col<4;col++){
-                input->at(0,c,r,col) = 1.0f;
+                input->at(c,r,col) = 1.0f;
             }
         }
     }

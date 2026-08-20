@@ -17,7 +17,7 @@ aux_source_directory(./test DIR_TEST)
 aux_source_directory(./source DIR_SOURCE)
 aux_source_directory(./source/layer/abstract DIR_ABSTRACT_LAYER)
 aux_source_directory(./source/layer/detail DIR_DETAIL_LAYER)
-aux_source_directory(source/parser DIR_PARSER)
+aux_source_directory(./source/parser DIR_PARSER)
 
 add_executable(naive_infer main.cpp ${DIR_TEST} ${DIR_SOURCE} ${DIR_ABSTRACT_LAYER} ${DIR_DETAIL_LAYER} ${DIR_PARSER})
 target_include_directories(naive_infer PUBLIC ${glog_INCLUDE_DIR})
